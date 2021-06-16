@@ -1,23 +1,21 @@
 #include <sstream>
 #include <iostream>
 #include <stdexcept>
+#include <utility>
 
 #include "brainfuck.h"
 
 Brainfuck::Brainfuck(std::string tokens):
-    m_pointer(0), m_pc(0), m_tokens(tokens)
+    m_pointer(0), m_pc(0), m_tokens(std::move(tokens))
 {
     m_tape.fill(0);
 }
 
-Brainfuck::~Brainfuck()
-{
-
-}
+Brainfuck::~Brainfuck() = default;
 
 void Brainfuck::run()
 {
-    while (m_pc < m_tokens.size()) {
+    while (!finished()) {
         switch (m_tokens[m_pc]) {
             case '>':
                 move_right();
@@ -76,7 +74,7 @@ void Brainfuck::decrement()
 
 void Brainfuck::print()
 {
-    std::cout << m_tape[m_pointer];
+    putchar(m_tape[m_pointer]);
 }
 
 void Brainfuck::read()
@@ -87,20 +85,16 @@ void Brainfuck::read()
 
 void Brainfuck::jump_if_zero()
 {
-    if (m_tape[m_pointer] > 0) return;
-    
-    do {
-        
-    } while (m_tokens[m_pc] != ']');
+    if (m_tape[m_pointer] == 0) {
+        proceed_until(']', true);
+    }
 }
 
 void Brainfuck::jump_if_not_zero()
 {
-    if (m_tape[m_pointer] == 0) return;
-
-    do {
-        m_pc++;
-    } while (m_tokens[m_pc] != '[');
+    if (m_tape[m_pointer] != 0) {
+        proceed_until('[', false);
+    }
 }
 
 std::ostream& operator<<(std::ostream& out, const Brainfuck& b)
@@ -117,3 +111,19 @@ std::ostream& operator<<(std::ostream& out, const Brainfuck& b)
     out << "]";
     return out;
 }
+
+void Brainfuck::proceed_until(char c, bool direction)
+{
+    while (!finished() && !match(c)) {
+        m_pc += direction ? 1 : -1;
+    }
+}
+
+bool Brainfuck::finished() {
+    return m_pc >= m_tokens.size();
+}
+
+bool Brainfuck::match(char c) {
+    return c == m_tokens[m_pc];
+}
+
