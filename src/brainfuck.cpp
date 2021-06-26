@@ -7,7 +7,7 @@
 #include "brainfuck.h"
 
 Brainfuck::Brainfuck(std::string tokens):
-    m_pointer(0), m_pc(0),
+    m_pointer(0), m_pc(0), m_cycles(0),
     m_tokens(std::move(tokens)), m_tape(), m_jumps()
 {
     m_tape.fill(0);
@@ -64,17 +64,24 @@ void Brainfuck::step()
     }
 
     m_pc++;
+    m_cycles++;
 }
 
-void Brainfuck::run()
+void Brainfuck::run(int cycles)
 {
-    while (!finished()) {
+    while (!finished(cycles)) {
         step();
     }
 }
 
-bool Brainfuck::finished() {
-    return m_pc >= m_tokens.size();
+bool Brainfuck::finished(int cycles) {
+    bool eof = m_pc >= m_tokens.size();
+
+    if (cycles < 0) {
+        return eof;
+    }
+
+    return eof && cycles <= m_cycles;
 }
 
 void Brainfuck::move_right()
@@ -136,5 +143,3 @@ std::ostream& operator<<(std::ostream& out, const Brainfuck& b)
     out << "]";
     return out;
 }
-
-

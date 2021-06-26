@@ -13,6 +13,7 @@
 #define TOKEN_JUMP_IF_ZERO '['
 #define TOKEN_JUMP_IF_NOT_ZERO ']'
 
+const int BF_INF_CYCLES = -1;
 const int BF_TAPE_SIZE = 256;
 
 class Brainfuck {
@@ -21,13 +22,14 @@ class Brainfuck {
         ~Brainfuck();
         
         void step();
-        void run();
-        bool finished();
+        void run(int cycles=BF_INF_CYCLES);
+        bool finished(int cycles);
 
         friend std::ostream& operator<<(std::ostream&, const Brainfuck&);
 
     private:
         int m_pc;
+        int m_cycles;
         int m_pointer;
         std::string m_tokens;
         std::map<int, int> m_jumps;
