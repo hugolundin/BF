@@ -15,15 +15,16 @@
 
 const int BF_INF_CYCLES = -1;
 const int BF_TAPE_SIZE = 256;
+const std::string BF_VALID_TOKENS("><+-.,[]");
 
 class Brainfuck {
     public:
-        explicit Brainfuck(std::string);
+        explicit Brainfuck(std::string tokens, int max_cycles=BF_INF_CYCLES);
         ~Brainfuck();
         
         void step();
-        void run(int cycles=BF_INF_CYCLES);
-        bool finished(int cycles);
+        void run();
+        bool finished();
 
         friend std::ostream& operator<<(std::ostream&, const Brainfuck&);
 
@@ -31,6 +32,7 @@ class Brainfuck {
         int m_pc;
         int m_cycles;
         int m_pointer;
+        int m_max_cycles;
         std::string m_tokens;
         std::map<int, int> m_jumps;
         std::array<int, BF_TAPE_SIZE> m_tape;

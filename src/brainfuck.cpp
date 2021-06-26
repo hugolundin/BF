@@ -6,11 +6,17 @@
 
 #include "brainfuck.h"
 
-Brainfuck::Brainfuck(std::string tokens):
-    m_pointer(0), m_pc(0), m_cycles(0),
-    m_tokens(std::move(tokens)), m_tape(), m_jumps()
+Brainfuck::Brainfuck(std::string tokens, int max_cycles):
+    m_pointer(0), m_pc(0), m_cycles(0), m_max_cycles(max_cycles),
+    m_tokens(), m_tape(), m_jumps()
 {
     m_tape.fill(0);
+
+    for (const char& token : tokens) {
+        if (BF_VALID_TOKENS.find(token) != std::string::npos) {
+            m_tokens.push_back(token);
+        }
+    }
 
     int start;
     char current;
@@ -67,21 +73,21 @@ void Brainfuck::step()
     m_cycles++;
 }
 
-void Brainfuck::run(int cycles)
+void Brainfuck::run()
 {
-    while (!finished(cycles)) {
+    while (!finished()) {
         step();
     }
 }
 
-bool Brainfuck::finished(int cycles) {
+bool Brainfuck::finished() {
     bool eof = m_pc >= m_tokens.size();
 
-    if (cycles < 0) {
+    if (m_cycles == BF_INF_CYCLES) {
         return eof;
     }
 
-    return eof && cycles <= m_cycles;
+    return eof && m_cycles >= m_max_cycles;
 }
 
 void Brainfuck::move_right()
